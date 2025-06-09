@@ -1,7 +1,7 @@
 import streamlit as st
-from utils.dashboard import heatmap_geral, scatterplot_profissao_stress
+from utils.dashboard import heatmap_geral, boxplot_profissao_stress
 
 st.write("Dashboard")
 heatmap_geral()
 
-scatterplot_profissao_stress()
+boxplot_profissao_stress()
