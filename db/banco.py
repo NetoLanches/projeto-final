@@ -1,8 +1,46 @@
 import sqlite3
 import pandas as pd
+import streamlit as st
+
+def get_connection():
+    try:
+        conn = sqlite3.connect("db/banco_sono.db")
+        return conn
+    except Exception as e:
+        st.error(f"Erro ao conectar ao banco de dados: {str(e)}")
+        return None
+
+def execute_query(query, params=None, return_df=False):
+    conn = get_connection()
+    if not conn:
+        return None
+        
+    try:
+        cur = conn.cursor()
+        if params == None:
+            cur.execute(query)
+        else:
+            cur.execute(query, params)
+        
+        if query.strip().lower().startswith(('select', 'with')):
+            if return_df:
+                columns = [desc[0] for desc in cur.description]
+                data = cur.fetchall()
+                return pd.DataFrame(data, columns=columns)
+            else:
+                return cur.fetchall()
+        else:
+            conn.commit()
+            return cur.rowcount
+    except Exception as e:
+        st.error(f"Erro na execução da query: {str(e)}")
+        conn.rollback()
+        return None
+    finally:
+        conn.close()
 
 def create_db():
-    conn = sqlite3.connect("banco_sono.db")
+    conn = sqlite3.connect("db/banco_sono.db")
     cursor = conn.cursor()
 
     cursor.execute('''
